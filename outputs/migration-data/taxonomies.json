@@ -1,0 +1,247 @@
+[
+  {
+    "taxonomy": "category",
+    "id": "1",
+    "slug": "general",
+    "name": "General",
+    "parent": ""
+  },
+  {
+    "taxonomy": "category",
+    "id": "65",
+    "slug": "outreach",
+    "name": "Outreach",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "22",
+    "slug": "bag",
+    "name": "bag",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "24",
+    "slug": "bug",
+    "name": "bug",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "25",
+    "slug": "case",
+    "name": "case",
+    "parent": ""
+  },
+  {
+    "taxonomy": "pj-categs",
+    "id": "27",
+    "slug": "church",
+    "name": "Church",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "29",
+    "slug": "crop-top",
+    "name": "crop top",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "30",
+    "slug": "cup",
+    "name": "cup",
+    "parent": ""
+  },
+  {
+    "taxonomy": "cp-categs",
+    "id": "31",
+    "slug": "donators",
+    "name": "Donators",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "32",
+    "slug": "eco",
+    "name": "eco",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "7",
+    "slug": "exclude-from-catalog",
+    "name": "exclude-from-catalog",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "6",
+    "slug": "exclude-from-search",
+    "name": "exclude-from-search",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_type",
+    "id": "5",
+    "slug": "external",
+    "name": "external",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "8",
+    "slug": "featured",
+    "name": "featured",
+    "parent": ""
+  },
+  {
+    "taxonomy": "pl-categs",
+    "id": "64",
+    "slug": "founder",
+    "name": "Founder",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_type",
+    "id": "3",
+    "slug": "grouped",
+    "name": "grouped",
+    "parent": ""
+  },
+  {
+    "taxonomy": "cp-categs",
+    "id": "36",
+    "slug": "help",
+    "name": "Help",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "41",
+    "slug": "jumper",
+    "name": "jumper",
+    "parent": ""
+  },
+  {
+    "taxonomy": "pj-tags",
+    "id": "43",
+    "slug": "masonry-puzzle",
+    "name": "masonry puzzle",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "9",
+    "slug": "outofstock",
+    "name": "outofstock",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "10",
+    "slug": "rated-1",
+    "name": "rated-1",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "11",
+    "slug": "rated-2",
+    "name": "rated-2",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "12",
+    "slug": "rated-3",
+    "name": "rated-3",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "13",
+    "slug": "rated-4",
+    "name": "rated-4",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_visibility",
+    "id": "14",
+    "slug": "rated-5",
+    "name": "rated-5",
+    "parent": ""
+  },
+  {
+    "taxonomy": "cp-categs",
+    "id": "50",
+    "slug": "safe",
+    "name": "Safe",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_type",
+    "id": "2",
+    "slug": "simple",
+    "name": "simple",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "53",
+    "slug": "t-short",
+    "name": "T-short",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "54",
+    "slug": "tank",
+    "name": "tank",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_cat",
+    "id": "15",
+    "slug": "uncategorized",
+    "name": "Uncategorized",
+    "parent": ""
+  },
+  {
+    "taxonomy": "product_type",
+    "id": "4",
+    "slug": "variable",
+    "name": "variable",
+    "parent": ""
+  },
+  {
+    "taxonomy": "nav_menu",
+    "id": "58",
+    "slug": "footer-navigation",
+    "name": "Footer Navigation",
+    "parent": ""
+  },
+  {
+    "taxonomy": "nav_menu",
+    "id": "59",
+    "slug": "primary-navigation",
+    "name": "Primary Navigation",
+    "parent": ""
+  },
+  {
+    "taxonomy": "nav_menu",
+    "id": "62",
+    "slug": "ptsijn-primary-menu",
+    "name": "PTSIJN Primary Menu",
+    "parent": ""
+  },
+  {
+    "taxonomy": "nav_menu",
+    "id": "60",
+    "slug": "top-line-navigation",
+    "name": "Top Line Navigation",
+    "parent": ""
+  }
+]

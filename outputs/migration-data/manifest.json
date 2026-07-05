@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-06-14T00:34:39.126Z",
+  "sourceFile": "C:\\Users\\Lenovo\\Downloads\\perfectingthesaintsijnfoundationinc.WordPress.2026-06-14.xml",
+  "site": {
+    "title": "Perfecting The Saints IJN Foundation Inc",
+    "link": "https://ptsijn.org",
+    "description": "Faith and Charity in the name of Jesus",
+    "wxrVersion": "1.2",
+    "baseSiteUrl": "https://ptsijn.org",
+    "baseBlogUrl": "https://ptsijn.org"
+  },
+  "counts": {
+    "attachment": 91,
+    "campaign": 2,
+    "cmsmasters_like": 7,
+    "content_template": 15,
+    "custom_css": 1,
+    "donation": 21,
+    "nav_menu_item": 19,
+    "page": 19,
+    "product": 9,
+    "post": 4,
+    "wpcf7_contact_form": 2,
+    "profile": 2,
+    "wp_global_styles": 1
+  },
+  "totalItems": 193,
+  "publicItems": 172,
+  "privateDonationItems": 21
+}
