@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import {
   ArrowRight,
   BarChart3,
@@ -33,6 +32,7 @@ import {
   X,
   Youtube
 } from "lucide-react";
+import defaultContent from "./data/content.js";
 
 const STORE_KEY = "ptsijn_site_content_v1";
 const ANALYTICS_KEY = "ptsijn_analytics_v1";
@@ -40,22 +40,10 @@ const ADMIN_SESSION_KEY = "ptsijn_admin_unlocked";
 const MAX_UPLOAD_SIZE = 2 * 1024 * 1024 * 1024;
 const LOCAL_BROWSER_UPLOAD_WARNING_SIZE = 25 * 1024 * 1024;
 const RAW_ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE?.trim() || "";
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim() || "";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || "";
-
-function isValidConfigValue(value) {
-  if (!value) return false;
-  const invalidPatterns = [/your-/, /change-this/, /example/, /dummy/, /replace/i];
-  return !invalidPatterns.some((pattern) => pattern.test(value));
-}
-
-const ADMIN_PASSCODE = isValidConfigValue(RAW_ADMIN_PASSCODE)
-  ? RAW_ADMIN_PASSCODE
-  : "PTS-IJN-2026";
-const HAS_SUPABASE_CONFIG = isValidConfigValue(SUPABASE_URL) && isValidConfigValue(SUPABASE_ANON_KEY);
-const LOCAL_ADMIN_ENABLED =
-  import.meta.env.DEV || import.meta.env.VITE_ENABLE_LOCAL_ADMIN === "true" || !HAS_SUPABASE_CONFIG;
-const supabase = HAS_SUPABASE_CONFIG ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const ADMIN_PASSCODE = RAW_ADMIN_PASSCODE || "PTS-IJN-2026";
+const USE_LOCAL_ADMIN = import.meta.env.VITE_ENABLE_LOCAL_ADMIN === "true" || import.meta.env.DEV;
+const USE_PASSCODE_AUTH = USE_LOCAL_ADMIN;
+const LOCAL_ADMIN_ENABLED = USE_LOCAL_ADMIN;
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -74,110 +62,6 @@ const mediaCategories = [
   { value: "prayer", label: "Prayer Gathering" },
   { value: "others", label: "Others" }
 ];
-
-const defaultContent = {
-  site: {
-    name: "Perfecting The Saints",
-    suffix: "IJN Foundation",
-    tagline: "Faith and Charity in the name of Jesus",
-    phone: "+1 301 404 5012",
-    email: "info@ptsijn.org",
-    location: "Meeting location to be confirmed"
-  },
-  hero: {
-    eyebrow: "Faith and Charity in the name of Jesus",
-    title: "Awakening faith. Serving people. Carrying hope.",
-    text:
-      "A modern ministry home for Perfecting The Saints, created to reflect holiness, the Holy Spirit, community care, prayer, outreach, and the light of Christ."
-  },
-  about: {
-    title: "A ministry shaped by holiness, compassion, and the Spirit of God.",
-    text:
-      "Perfecting The Saints exists to serve people spirit, soul, and body through prayer, teaching, outreach, feeding, medical care, and practical love.",
-    scripture: "Whatever you do in words or deeds, do all in the name of Jesus.",
-    scriptureRef: "Colossians 3:17"
-  },
-  leaders: [
-    {
-      id: "founder",
-      name: "Sylvia",
-      role: "Founder",
-      bio:
-        "Founder of Perfecting The Saints IJN Foundation, serving with a heart for faith, holiness, prayer, and compassionate outreach.",
-      image: ""
-    },
-    {
-      id: "cofounder",
-      name: "George",
-      role: "Co-Founder",
-      bio:
-        "Co-Founder of Perfecting The Saints IJN Foundation, supporting the mission through service, care, and community outreach.",
-      image: ""
-    }
-  ],
-  ministries: [
-    {
-      title: "Feeding Outreach",
-      text: "Practical love for families and communities through food support and compassionate care."
-    },
-    {
-      title: "Medical Support",
-      text: "Health-focused outreach that meets people with dignity, prayer, and practical help."
-    },
-    {
-      title: "Prayer and Teaching",
-      text: "Gatherings centered on Scripture, encouragement, holiness, and the presence of God."
-    },
-    {
-      title: "Community Care",
-      text: "Serving spirit, soul, and body with consistent kindness and follow-up support."
-    }
-  ],
-  outreach: {
-    title: "Bring your photos and videos here.",
-    text:
-      "This area is ready for ministry photos, outreach footage, testimonies, feeding events, medical drives, and community service moments"
-  },
-  announcements: [
-    {
-      id: "outreach",
-      type: "Next Outreach",
-      title: "Community Outreach",
-      date: "Add date in admin",
-      text: "Use the admin page to announce the next outreach date, location, and instructions."
-    },
-    {
-      id: "service",
-      type: "Online Service",
-      title: "Wednesday Online Meeting",
-      date: "Wednesdays / 7:00 PM",
-      text: "Online connection for prayer and teaching. Add access details in admin."
-    },
-    {
-      id: "event",
-      type: "Event",
-      title: "Ministry Gathering",
-      date: "Add date in admin",
-      text: "Post upcoming worship, outreach, teaching, or community care updates here."
-    }
-  ],
-  media: [],
-  donation: {
-    note:
-      "Your giving supports feeding outreaches, medical support, prayer ministry, and compassionate care.",
-    bankName: "Add bank name in admin",
-    accountName: "Perfecting The Saints IJN Foundation",
-    accountNumber: "Add account number in admin",
-    routingNumber: "",
-    instructions: "Click Continue to Giving to view the account details for your donation."
-  },
-  socials: {
-    youtube: "",
-    facebook: "",
-    instagram: "",
-    tiktok: ""
-  }
-};
 
 const defaultAnalytics = {
   views: 0,
@@ -222,18 +106,6 @@ function mergeContent(saved) {
   };
 }
 
-function rowsToMedia(rows = []) {
-  return rows.map((item) => ({
-    id: item.id,
-    title: item.title || "Untitled",
-    caption: item.caption || "",
-    category: item.category || "others",
-    type: item.file_type || "",
-    src: item.file_url,
-    filePath: item.file_path
-  }));
-}
-
 function loadContent() {
   try {
     return mergeContent(JSON.parse(localStorage.getItem(STORE_KEY)));
@@ -242,35 +114,8 @@ function loadContent() {
   }
 }
 
-async function loadRemoteContent() {
-  if (!supabase) return loadContent();
-
-  const [{ data: contentRow }, { data: mediaRows }] = await Promise.all([
-    supabase.from("site_content").select("data").eq("id", "main").maybeSingle(),
-    supabase.from("media_items").select("*").order("created_at", { ascending: false })
-  ]);
-
-  const merged = mergeContent(contentRow?.data || loadContent());
-  merged.media = rowsToMedia(mediaRows || merged.media);
-  localStorage.setItem(STORE_KEY, JSON.stringify(merged));
-  return merged;
-}
-
-async function persistContentToSupabase(content) {
-  if (!supabase) return;
-  const contentWithoutMedia = { ...content, media: [] };
-  await supabase.from("site_content").upsert({
-    id: "main",
-    data: contentWithoutMedia,
-    updated_at: new Date().toISOString()
-  });
-}
-
-function saveContent(content, options = {}) {
+function saveContent(content) {
   localStorage.setItem(STORE_KEY, JSON.stringify(content));
-  if (options.remote !== false) {
-    persistContentToSupabase(content);
-  }
   window.dispatchEvent(new Event("ptsijn-content-updated"));
 }
 
@@ -282,50 +127,13 @@ function loadAnalytics() {
   }
 }
 
-async function loadRemoteAnalytics() {
-  if (!supabase) return loadAnalytics();
-  const [{ data: events }, { data: donations }] = await Promise.all([
-    supabase.from("analytics_events").select("*").order("created_at", { ascending: false }).limit(500),
-    supabase.from("donation_records").select("*").order("created_at", { ascending: false }).limit(100)
-  ]);
-
-  const analytics = { ...defaultAnalytics, clicks: {}, sectionViews: {}, donationRecords: [] };
-  (events || []).forEach((event) => {
-    if (event.event_name === "page_view") analytics.views += 1;
-    if (event.event_name === "donation_click") analytics.donationClicks += 1;
-    if (event.event_name === "click") {
-      const name = event.event_data?.name || "unknown";
-      analytics.clicks[name] = (analytics.clicks[name] || 0) + 1;
-    }
-    if (event.event_name === "section_view") {
-      const section = event.event_data?.section || "unknown";
-      analytics.sectionViews[section] = (analytics.sectionViews[section] || 0) + 1;
-    }
-  });
-
-  analytics.donationRecords = (donations || []).map((item) => ({
-    id: item.id,
-    name: item.donor_name || "Anonymous",
-    amount: item.amount || "Not entered",
-    note: item.note || "",
-    date: new Date(item.created_at).toLocaleString()
-  }));
-
-  localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
-  return analytics;
-}
-
 function saveAnalytics(analytics) {
   localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
   window.dispatchEvent(new Event("ptsijn-analytics-updated"));
 }
 
-async function saveAnalyticsEvent(eventName, eventData = {}) {
-  if (!supabase) return;
-  await supabase.from("analytics_events").insert({
-    event_name: eventName,
-    event_data: eventData
-  });
+function saveAnalyticsEvent() {
+  return Promise.resolve();
 }
 
 function trackClick(name) {
@@ -333,7 +141,7 @@ function trackClick(name) {
   analytics.clicks = analytics.clicks || {};
   analytics.clicks[name] = (analytics.clicks[name] || 0) + 1;
   saveAnalytics(analytics);
-  saveAnalyticsEvent("click", { name });
+  saveAnalyticsEvent();
 }
 
 function fileToDataUrl(file) {
@@ -343,7 +151,7 @@ function fileToDataUrl(file) {
 
   if (file.size > LOCAL_BROWSER_UPLOAD_WARNING_SIZE) {
     throw new Error(
-      `${file.name} is allowed by the 2GB production target, but the current local admin stores files in the browser and may crash with large videos. Connect Supabase Storage before uploading large event videos.`
+      `${file.name} is allowed by the 2GB production target, but the current local admin stores files in the browser and may crash with large videos. Use manual static media files for larger content.`
     );
   }
 
@@ -355,139 +163,43 @@ function fileToDataUrl(file) {
   });
 }
 
-async function uploadMediaToSupabase(file, category = "others") {
-  if (!supabase) {
-    const src = await fileToDataUrl(file);
-    return {
-      id: crypto.randomUUID(),
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      caption: "",
-      type: file.type,
-      category,
-      src
-    };
-  }
-
-  if (file.size > MAX_UPLOAD_SIZE) {
-    throw new Error(`${file.name} is larger than 2GB. Please compress it before uploading.`);
-  }
-
-  const { filePath, fileUrl } = await uploadFileToSupabaseStorage(file, category);
-  const { data, error } = await supabase
-    .from("media_items")
-    .insert({
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      caption: "",
-      category,
-      file_url: fileUrl,
-      file_path: filePath,
-      file_type: file.type
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-
-  return rowsToMedia([data])[0];
+function sanitizeFileName(name) {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-").replace(/^[-.]+|[-.]+$/g, "");
 }
 
-async function uploadFileToSupabaseStorage(file, folder) {
-  if (!supabase) {
-    return { filePath: "", fileUrl: await fileToDataUrl(file) };
-  }
-
-  if (file.size > MAX_UPLOAD_SIZE) {
-    throw new Error(`${file.name} is larger than 2GB. Please compress it before uploading.`);
-  }
-
-  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-  const filePath = `${folder}/${crypto.randomUUID()}-${cleanName}`;
-  if (file.size > 6 * 1024 * 1024) {
-    await uploadLargeFileWithTus(file, filePath);
-  } else {
-    const { error: uploadError } = await supabase.storage.from("media").upload(filePath, file, {
-      cacheControl: "3600",
-      upsert: false
-    });
-
-    if (uploadError) throw new Error(uploadError.message);
-  }
-
-  const { data: publicUrlData } = supabase.storage.from("media").getPublicUrl(filePath);
-  return { filePath, fileUrl: publicUrlData.publicUrl };
+async function createStaticMediaItem(file, category = "others") {
+  const cleanName = sanitizeFileName(file.name);
+  const path = `/media/${category}/${cleanName}`;
+  return {
+    id: crypto.randomUUID(),
+    title: file.name.replace(/\.[^/.]+$/, ""),
+    caption: "",
+    type: file.type,
+    category,
+    src: path,
+    filePath: path
+  };
 }
 
-async function uploadLargeFileWithTus(file, filePath) {
-  const tus = await import("tus-js-client");
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
-    throw new Error("Please log in again before uploading large media files.");
-  }
-
-  await new Promise((resolve, reject) => {
-    const upload = new tus.Upload(file, {
-      endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
-      chunkSize: 6 * 1024 * 1024,
-      headers: {
-        authorization: `Bearer ${session.access_token}`,
-        apikey: SUPABASE_ANON_KEY,
-        "x-upsert": "false"
-      },
-      metadata: {
-        bucketName: "media",
-        objectName: filePath,
-        contentType: file.type || "application/octet-stream",
-        cacheControl: "3600"
-      },
-      onError: (error) => reject(error),
-      onSuccess: () => resolve()
-    });
-
-    upload.findPreviousUploads().then((previousUploads) => {
-      if (previousUploads.length) upload.resumeFromPreviousUpload(previousUploads[0]);
-      upload.start();
-    });
-  });
+async function createStaticMediaPath(file, folder) {
+  const cleanName = sanitizeFileName(file.name);
+  const path = `/media/${folder}/${cleanName}`;
+  return { filePath: path, fileUrl: path };
 }
 
-async function persistMediaItems(media = []) {
-  if (!supabase) return;
-  const rows = media
-    .filter((item) => item.filePath && item.src)
-    .map((item) => ({
-      id: item.id,
-      title: item.title || "Untitled",
-      caption: item.caption || "",
-      category: item.category || "others",
-      file_url: item.src,
-      file_path: item.filePath,
-      file_type: item.type || ""
-    }));
-
-  if (rows.length) {
-    await supabase.from("media_items").upsert(rows);
-  }
+function persistMediaItems() {
+  return;
 }
 
-async function deleteMediaItem(item) {
-  if (!supabase || !item?.id) return;
-  await supabase.from("media_items").delete().eq("id", item.id);
-  if (item.filePath) {
-    await supabase.storage.from("media").remove([item.filePath]);
-  }
+function deleteMediaItem() {
+  return;
 }
 
 function useStoredContent() {
   const [content, setContent] = useState(loadContent);
 
   useEffect(() => {
-    loadRemoteContent()
-      .then(setContent)
-      .catch(() => setContent(loadContent()));
+    setContent(loadContent());
 
     const sync = () => setContent(loadContent());
     window.addEventListener("storage", sync);
@@ -621,28 +333,14 @@ function SocialIcon({ platform }) {
 
 function AdminGate({ children }) {
   const [unlocked, setUnlocked] = useState(
-    () => !supabase && sessionStorage.getItem(ADMIN_SESSION_KEY) === "true"
+    () => sessionStorage.getItem(ADMIN_SESSION_KEY) === "true"
   );
-  const [checking, setChecking] = useState(Boolean(supabase));
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [checking, setChecking] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!supabase) return;
-
-    supabase.auth.getSession().then(({ data }) => {
-      setUnlocked(Boolean(data.session));
-      setChecking(false);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUnlocked(Boolean(session));
-      setChecking(false);
-    });
-
-    return () => listener.subscription.unsubscribe();
+    setChecking(false);
   }, []);
 
   if (!LOCAL_ADMIN_ENABLED) {
@@ -681,24 +379,13 @@ function AdminGate({ children }) {
   async function submit(event) {
     event.preventDefault();
 
-    if (supabase) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (signInError) {
-        setError("Login failed. Please check your email and password.");
-      }
-      return;
-    }
-
     if (passcode === ADMIN_PASSCODE) {
       sessionStorage.setItem(ADMIN_SESSION_KEY, "true");
       setUnlocked(true);
       setError("");
       return;
     }
+
     setError("That passcode is not correct.");
   }
 
@@ -707,36 +394,20 @@ function AdminGate({ children }) {
       <form className="admin-login-card" onSubmit={submit}>
         <Lock size={34} />
         <p className="eyebrow">Protected Admin</p>
-        <h1>{supabase ? "Log in to the admin." : "Enter the admin passcode."}</h1>
+        <h1>Enter the admin passcode.</h1>
         <p>
-          {supabase
-            ? "Use your Supabase email and password to unlock the admin."
-            : "The local passcode is active right now. Enter the passcode to unlock the admin."}
+          The local passcode is active right now. Enter the passcode to unlock the admin.
         </p>
         <label>
-          {supabase ? "Email" : "Passcode"}
+          Passcode
           <input
-            type={supabase ? "email" : "password"}
-            value={supabase ? email : passcode}
-            onChange={(event) =>
-              supabase ? setEmail(event.target.value) : setPasscode(event.target.value)
-            }
-            placeholder={supabase ? "you@example.com" : "Enter passcode"}
-            autoComplete={supabase ? "email" : "current-password"}
+            type="password"
+            value={passcode}
+            onChange={(event) => setPasscode(event.target.value)}
+            placeholder="Enter passcode"
+            autoComplete="current-password"
           />
         </label>
-        {supabase && (
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter password"
-              autoComplete="current-password"
-            />
-          </label>
-        )}
         {error && <p className="form-error">{error}</p>}
         <button className="button primary" type="submit">
           Unlock Admin <ShieldCheck size={18} />
@@ -771,13 +442,6 @@ function DonationPanel({ content, onClose }) {
     analytics.donationRecords = analytics.donationRecords || [];
     analytics.donationRecords.unshift({ id: crypto.randomUUID(), ...donation });
     saveAnalytics(analytics);
-    if (supabase) {
-      supabase.from("donation_records").insert({
-        donor_name: donation.name,
-        amount: donation.amount,
-        note: donation.note
-      });
-    }
     setRecord({ amount: "", name: "", note: "" });
   }
 
@@ -1268,7 +932,7 @@ function AdminPage() {
   useEffect(() => setDraft(content), [content]);
 
   useEffect(() => {
-    loadRemoteAnalytics().then(setAnalytics).catch(() => setAnalytics(loadAnalytics()));
+    setAnalytics(loadAnalytics());
 
     const sync = () => setAnalytics(loadAnalytics());
     window.addEventListener("ptsijn-analytics-updated", sync);
@@ -1299,7 +963,6 @@ function AdminPage() {
       )
     };
     saveContent(cleaned);
-    await persistMediaItems(cleaned.media);
     setContent(cleaned);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
@@ -1339,7 +1002,6 @@ function AdminPage() {
   }
 
   async function logout() {
-    if (supabase) await supabase.auth.signOut();
     sessionStorage.removeItem(ADMIN_SESSION_KEY);
     window.location.reload();
   }
@@ -1347,7 +1009,7 @@ function AdminPage() {
   async function updateLeaderImage(index, file) {
     if (!file) return;
     try {
-      const { fileUrl } = await uploadFileToSupabaseStorage(file, "leaders");
+      const { fileUrl } = await createStaticMediaPath(file, "leaders");
       const next = structuredClone(draft.leaders);
       next[index].image = fileUrl;
       update(["leaders"], next);
@@ -1360,7 +1022,7 @@ function AdminPage() {
   async function addMedia(files) {
     try {
       const uploaded = await Promise.all(
-        Array.from(files).map((file) => uploadMediaToSupabase(file, "others"))
+        Array.from(files).map((file) => createStaticMediaItem(file, "others"))
       );
       update(["media"], [...draft.media, ...uploaded]);
       setUploadError("");
@@ -1502,13 +1164,17 @@ function AdminPage() {
                   }}
                 />
                 <label className="upload-box">
-                  <Upload size={18} /> Upload {leader.role} Photo
+                  <Upload size={18} /> Choose {leader.role} Photo
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(event) => updateLeaderImage(index, event.target.files?.[0])}
                   />
                 </label>
+                <p className="admin-help">
+                  Selected leader photos use static paths like <code>/media/leaders/your-file.jpg</code>.
+                  Copy the file into `public/media/leaders` and redeploy to make it live.
+                </p>
               </div>
             ))}
           </div>
@@ -1521,9 +1187,13 @@ function AdminPage() {
             Support, Medical Care, Prayer Gathering, or Others.
           </p>
           <label className="upload-box large">
-            <Upload size={20} /> Upload images or videos, production target 2GB max each
+            <Upload size={20} /> Choose images or videos to assign a media path
             <input type="file" accept="image/*,video/*" multiple onChange={(event) => addMedia(event.target.files)} />
           </label>
+          <p className="admin-help">
+            Selected files are referenced as static paths under <code>/media/&lt;category&gt;/&lt;filename&gt;</code>.
+            Copy the files into the matching `public/media` folder locally and redeploy to Netlify.
+          </p>
           {uploadError && <p className="form-error">{uploadError}</p>}
           <div className="admin-media-list">
             {draft.media.map((item, index) => (

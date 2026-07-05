@@ -2,48 +2,46 @@
 
 ## Current Status
 
-The public website is ready to build and deploy as a modern static website.
+This project now runs as a static Vite website with a local admin workflow.
 
-The admin page is included for local editing, testing, backups, and content preparation. It is protected with a passcode gate, but it is still a front-end-only admin. A front-end-only admin cannot be made fully hacker-proof because all browser code is visible to visitors.
+The admin page is for local content updates, file path preparation, and backups. It is protected by a browser passcode stored in `VITE_ADMIN_PASSCODE`.
 
-## Safe Deployment Recommendation
+## Deployment Recommendation
 
-For the public launch:
+For a Netlify deployment:
 
-1. Deploy the public website to Netlify.
-2. Configure Supabase and add the environment variables below in Netlify.
-3. Run `supabase_setup.sql` in the Supabase SQL Editor.
-4. Create an admin user in Supabase Authentication.
-5. Use `/admin` to log in with the Supabase admin email and password.
+1. Deploy the static website.
+2. Set `VITE_ENABLE_LOCAL_ADMIN=true` in Netlify.
+3. Set `VITE_ADMIN_PASSCODE` to a strong passcode.
+4. Deploy the site.
+5. Open `/admin` and use the passcode to unlock editing.
 
-## Supabase and media uploads
+## Local static media workflow
 
-This project only stores uploaded images and videos persistently when Supabase is configured.
+This admin stores content in `localStorage`. Uploaded media files are not uploaded to a remote service during runtime.
 
-- If Supabase is not configured, the admin still loads, but uploaded media is stored as browser-only data URLs and will not be available after you close or redeploy the site.
-- For real deployment with uploaded media, use Supabase Storage and the correct environment values.
+- Files added in the admin are recorded as static references like `/media/<category>/<filename>`.
+- To make images or video files live, copy them into `public/media/<category>/` locally and redeploy the site.
+- `public/media/leaders/` is the folder for founder/co-founder photos.
 
-## Local Admin Passcode
+## Admin passcode
 
-The local admin passcode is controlled by:
+Use this environment variable for local admin access:
 
 ```bash
 VITE_ADMIN_PASSCODE=PTS-IJN-2026
 ```
 
-This fallback is only used when Supabase is not configured or the provided Supabase values are placeholders.
+If you do not set `VITE_ADMIN_PASSCODE`, the site uses the default passcode above.
 
-## Production Environment
-
-Use these production settings in Netlify:
+## Recommended Netlify environment variables
 
 ```bash
 VITE_ENABLE_LOCAL_ADMIN=true
-VITE_SUPABASE_URL=<your-supabase-url>
-VITE_SUPABASE_ANON_KEY=<your-supabase-anon-public-key>
+VITE_ADMIN_PASSCODE=your-strong-passcode
 ```
 
-Then configure Supabase Storage and Authentication so `/admin` works with your real login and uploaded media is saved off-browser.
+Then redeploy the site.
 
 ## Netlify environment setup
 
@@ -52,106 +50,60 @@ Then configure Supabase Storage and Authentication so `/admin` works with your r
 3. Add these variables:
 
    - `VITE_ENABLE_LOCAL_ADMIN=true`
-   - `VITE_SUPABASE_URL=<your-supabase-url>`
-   - `VITE_SUPABASE_ANON_KEY=<your-supabase-anon-public-key>`
-   - `VITE_ADMIN_PASSCODE=PTS-IJN-2026` (or a stronger custom passcode)
+   - `VITE_ADMIN_PASSCODE=<your-passcode>`
 
+4. Redeploy.
+
+## Commands
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run locally:
+
+```bash
+npm run dev
+```
+
+Build for deployment:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+## Hosting security
+
+Security headers are configured in `public/_headers` and `vercel.json`.
+
+## Media upload guidance
+
+This admin creates metadata references for local static media. It does not upload files at runtime.
+
+Recommended workflow:
+
+1. Choose images or videos in `/admin` to generate paths.
+2. Copy the selected files into `public/media/<category>/` locally.
+3. Save changes in the admin.
 4. Redeploy the site.
 
-## Commands
+For leader photos, use `public/media/leaders/`.
 
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run locally:
-
-```bash
-npm run dev
-```
-
-Build for deployment:
-
-```bash
-npm run build
-```
-
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## Commands
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run locally:
-
-```bash
-npm run dev
-```
-
-Build for deployment:
-
-```bash
-npm run build
-```
-
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## Hosting Security
-
-Security headers have been added for:
-
-- Netlify-compatible hosts: `public/_headers`
-- Vercel: `vercel.json`
-
-These headers help protect against clickjacking, unsafe browser permissions, MIME sniffing, and overly broad content loading.
-
-## Media Upload Warning
-
-The admin now uploads media to Supabase Storage when Supabase is configured.
-
-The project target is now 2GB per media file, but 2GB uploads require backend/cloud storage. Do not upload large videos into browser storage.
-
-For production media management, use cloud storage such as:
-
-- Supabase Storage
-- Firebase Storage
-- Cloudinary
-- Uploadcare
-- Your web host's file storage
-
-Recommended path for this project:
-
-1. Run `supabase_setup.sql`.
-2. Add the Supabase environment variables to Netlify.
-3. Redeploy.
-4. Log in at `/admin`.
-5. Upload founder photos, gallery images, and videos.
-6. Click `Save Changes`.
-
-For very large files, use Supabase resumable uploads or S3-compatible uploads instead of sending the file through Netlify.
-
-## Before Launch Checklist
+## Before launch checklist
 
 1. Add final founder and co-founder photos.
-2. Add final donation account details.
+2. Add donation account details.
 3. Add real social media URLs.
-4. Add real announcements.
+4. Add announcements.
 5. Export a backup from the admin.
-6. Build successfully with `npm run build`.
-7. Deploy with Supabase environment variables added in Netlify.
-8. Test the deployed public site on phone and desktop.
-9. Confirm `/admin` requires your Supabase email/password.
+6. Run `npm run build` successfully.
+7. Deploy to Netlify.
+8. Confirm `/admin` opens with the passcode.

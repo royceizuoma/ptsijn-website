@@ -202,3 +202,74 @@ export const contactCards = [
   { icon: MapPin, title: "Location", text: site.address },
   { icon: Gift, title: "Giving", text: "Support outreaches, campaigns, and ministry care." }
 ];
+
+const defaultContent = {
+  site: {
+    name: site.name,
+    suffix: "IJN Foundation",
+    tagline: site.tagline,
+    phone: site.phone,
+    email: site.email,
+    location: site.address
+  },
+  hero: {
+    eyebrow: site.tagline,
+    title: "Awakening faith. Serving people. Carrying hope.",
+    text:
+      "A modern ministry home for Perfecting The Saints, created to reflect holiness, the Holy Spirit, community care, prayer, outreach, and the light of Christ."
+  },
+  about: {
+    title: "A ministry shaped by holiness, compassion, and the Spirit of God.",
+    text:
+      "Perfecting The Saints exists to serve people spirit, soul, and body through prayer, teaching, outreach, feeding, medical care, and practical love.",
+    scripture: "Whatever you do in words or deeds, do all in the name of Jesus.",
+    scriptureRef: "Colossians 3:17"
+  },
+  leaders,
+  ministries,
+  outreach: {
+    title: "Bring your photos and videos here.",
+    text:
+      "This area is ready for ministry photos, outreach footage, testimonies, feeding events, medical drives, and community service moments"
+  },
+  announcements: [
+    {
+      id: "outreach",
+      type: "Next Outreach",
+      title: "Community Outreach",
+      date: "Add date in admin",
+      text: "Use the admin page to announce the next outreach date, location, and instructions."
+    },
+    {
+      id: "service",
+      type: "Online Service",
+      title: "Wednesday Online Meeting",
+      date: "Wednesdays / 7:00 PM",
+      text: "Online connection for prayer and teaching. Add access details in admin."
+    },
+    {
+      id: "event",
+      type: "Event",
+      title: "Ministry Gathering",
+      date: "Add date in admin",
+      text: "Post upcoming worship, outreach, teaching, or community care updates here."
+    }
+  ],
+  media: [],
+  donation: {
+    note: site.donationNote,
+    bankName: "Add bank name in admin",
+    accountName: "Perfecting The Saints IJN Foundation",
+    accountNumber: "Add account number in admin",
+    routingNumber: "",
+    instructions: "Click Continue to Giving to view the account details for your donation."
+  },
+  socials: {
+    youtube: "",
+    facebook: "",
+    instagram: "",
+    tiktok: ""
+  }
+};
+
+export default defaultContent;
