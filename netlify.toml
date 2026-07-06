@@ -3,5 +3,6 @@
   publish = "dist"
 
 [build.environment]
+  NPM_FLAGS = "--include=dev"
   VITE_ENABLE_LOCAL_ADMIN = "false"
   VITE_ADMIN_PASSCODE = "PTS-IJN-2026"
