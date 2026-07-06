@@ -3,5 +3,5 @@
   publish = "dist"
 
 [build.environment]
-  VITE_ENABLE_LOCAL_ADMIN = "true"
+  VITE_ENABLE_LOCAL_ADMIN = "false"
   VITE_ADMIN_PASSCODE = "PTS-IJN-2026"
