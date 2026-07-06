@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -30,9 +30,12 @@ import {
   Upload,
   UsersRound,
   X,
+  Maximize2,
+  Minimize2,
   Youtube
 } from "lucide-react";
 import defaultContent from "./data/content.js";
+import overrideContent from "./data/override-content.js";
 
 const STORE_KEY = "ptsijn_site_content_v1";
 const ANALYTICS_KEY = "ptsijn_analytics_v1";
@@ -53,14 +56,6 @@ const navItems = [
   { label: "Announcements", href: "#announcements" },
   { label: "Media", href: "#media" },
   { label: "Contact", href: "#contact" }
-];
-
-const mediaCategories = [
-  { value: "outreach", label: "Outreach Moments" },
-  { value: "feeding", label: "Feeding Support" },
-  { value: "medical", label: "Medical Care" },
-  { value: "prayer", label: "Prayer Gathering" },
-  { value: "others", label: "Others" }
 ];
 
 const defaultAnalytics = {
@@ -87,22 +82,51 @@ function safeExternalUrl(url) {
   return isSafeUrl(url) ? url : "";
 }
 
+function normalizeMediaItems(items = []) {
+  return items.map((item) => {
+    const next = { ...item };
+    delete next.category;
+    return next;
+  });
+}
+
 function mergeContent(saved) {
   return {
     ...defaultContent,
+    ...overrideContent,
     ...saved,
-    site: { ...defaultContent.site, ...saved?.site },
-    hero: { ...defaultContent.hero, ...saved?.hero },
-    about: { ...defaultContent.about, ...saved?.about },
-    leaders: saved?.leaders?.length ? saved.leaders : defaultContent.leaders,
-    ministries: saved?.ministries?.length ? saved.ministries : defaultContent.ministries,
-    outreach: { ...defaultContent.outreach, ...saved?.outreach },
+    site: { ...defaultContent.site, ...overrideContent.site, ...saved?.site },
+    hero: { ...defaultContent.hero, ...overrideContent.hero, ...saved?.hero },
+    about: { ...defaultContent.about, ...overrideContent.about },
+    leaders:
+      saved?.leaders?.length || overrideContent?.leaders?.length
+        ? saved?.leaders || overrideContent?.leaders
+        : defaultContent.leaders,
+    ministries:
+      saved?.ministries?.length || overrideContent?.ministries?.length
+        ? saved?.ministries || overrideContent?.ministries
+        : defaultContent.ministries,
+    outreach: {
+      ...defaultContent.outreach,
+      ...overrideContent.outreach,
+      ...saved?.outreach
+    },
     announcements: saved?.announcements?.length
       ? saved.announcements
+      : overrideContent?.announcements?.length
+      ? overrideContent.announcements
       : defaultContent.announcements,
-    media: saved?.media || defaultContent.media,
-    donation: { ...defaultContent.donation, ...saved?.donation },
-    socials: { ...defaultContent.socials, ...saved?.socials }
+    media: normalizeMediaItems(saved?.media || overrideContent?.media || defaultContent.media),
+    donation: {
+      ...defaultContent.donation,
+      ...overrideContent.donation,
+      ...saved?.donation
+    },
+    socials: {
+      ...defaultContent.socials,
+      ...overrideContent.socials,
+      ...saved?.socials
+    }
   };
 }
 
@@ -114,9 +138,57 @@ function loadContent() {
   }
 }
 
+function stripPreviewData(content) {
+  if (!content) return content;
+  const copy = structuredClone(content);
+  if (Array.isArray(copy?.leaders)) {
+    copy.leaders = copy.leaders.map((leader) => {
+      const next = { ...leader };
+      delete next.imagePreview;
+      return next;
+    });
+  }
+  if (Array.isArray(copy?.media)) {
+    copy.media = copy.media.map((item) => {
+      const next = { ...item };
+      delete next.previewSrc;
+      return next;
+    });
+  }
+  return copy;
+}
+
+function prepareContentForSave(content) {
+  if (!content) return content;
+  const copy = structuredClone(content);
+  if (Array.isArray(copy?.leaders)) {
+    copy.leaders = copy.leaders.map((leader) => {
+      const next = { ...leader };
+      delete next.imagePreview;
+      return next;
+    });
+  }
+  if (Array.isArray(copy?.media)) {
+    copy.media = copy.media.map((item) => {
+      const next = { ...item };
+      if (next.type?.startsWith("video")) {
+        delete next.previewSrc;
+      }
+      return next;
+    });
+  }
+  return copy;
+}
+
 function saveContent(content) {
-  localStorage.setItem(STORE_KEY, JSON.stringify(content));
-  window.dispatchEvent(new Event("ptsijn-content-updated"));
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(content));
+    window.dispatchEvent(new Event("ptsijn-content-updated"));
+    return true;
+  } catch (error) {
+    console.error("Failed to save content:", error);
+    return false;
+  }
 }
 
 function loadAnalytics() {
@@ -167,24 +239,26 @@ function sanitizeFileName(name) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-").replace(/^[-.]+|[-.]+$/g, "");
 }
 
-async function createStaticMediaItem(file, category = "others") {
+async function createStaticMediaItem(file) {
   const cleanName = sanitizeFileName(file.name);
-  const path = `/media/${category}/${cleanName}`;
+  const path = `/media/others/${cleanName}`;
+  const previewSrc = await fileToDataUrl(file);
   return {
     id: crypto.randomUUID(),
     title: file.name.replace(/\.[^/.]+$/, ""),
     caption: "",
     type: file.type,
-    category,
     src: path,
-    filePath: path
+    filePath: path,
+    previewSrc
   };
 }
 
 async function createStaticMediaPath(file, folder) {
   const cleanName = sanitizeFileName(file.name);
   const path = `/media/${folder}/${cleanName}`;
-  return { filePath: path, fileUrl: path };
+  const previewSrc = await fileToDataUrl(file);
+  return { filePath: path, fileUrl: path, previewSrc };
 }
 
 function persistMediaItems() {
@@ -313,15 +387,12 @@ function SectionHeading({ eyebrow, title, text, align = "left" }) {
 }
 
 function MediaPreview({ item }) {
-  if (!item?.src) return null;
+  const previewSrc = item.previewSrc || item.imagePreview || item.src;
+  if (!previewSrc) return null;
   if (item.type?.startsWith("video")) {
-    return <video src={item.src} controls playsInline preload="metadata" />;
+    return <video src={previewSrc} controls playsInline preload="metadata" />;
   }
-  return <img src={item.src} alt={item.title || "Ministry media"} />;
-}
-
-function getMediaCategory(item) {
-  return item.category || "others";
+  return <img src={previewSrc} alt={item.title || "Ministry media"} />;
 }
 
 function SocialIcon({ platform }) {
@@ -505,7 +576,11 @@ function PublicSite() {
   const [content] = useStoredContent();
   const [spotlight, setSpotlight] = useState({ x: 50, y: 40 });
   const [givingOpen, setGivingOpen] = useState(false);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+  const mediaModalRef = useRef(null);
 
   const cssSpotlight = useMemo(
     () => ({ "--spot-x": `${spotlight.x}%`, "--spot-y": `${spotlight.y}%` }),
@@ -546,9 +621,137 @@ function PublicSite() {
     window.location.href = `mailto:${content.site.email}?subject=${subject}&body=${body}`;
   }
 
+  const allMediaItems = content.media || [];
+  const selectedMedia = selectedMediaIndex !== null ? allMediaItems[selectedMediaIndex] : null;
+
+  function openMediaViewer(index) {
+    setSelectedMediaIndex(index);
+  }
+
+  function closeMediaViewer() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+    setSelectedMediaIndex(null);
+  }
+
+  async function toggleFullscreen() {
+    if (!mediaModalRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await mediaModalRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // ignore fullscreen errors
+    }
+  }
+
+  useEffect(() => {
+    function handleFullscreenChange() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  function showNextMedia() {
+    if (!allMediaItems.length || selectedMediaIndex === null) return;
+    setSelectedMediaIndex((selectedMediaIndex + 1) % allMediaItems.length);
+  }
+
+  function showPreviousMedia() {
+    if (!allMediaItems.length || selectedMediaIndex === null) return;
+    setSelectedMediaIndex((selectedMediaIndex - 1 + allMediaItems.length) % allMediaItems.length);
+  }
+
+  function handleTouchStart(event) {
+    setTouchStartX(event.touches?.[0]?.clientX || null);
+  }
+
+  function handleTouchEnd(event) {
+    if (touchStartX === null) return;
+    const endX = event.changedTouches?.[0]?.clientX;
+    if (endX === undefined) return;
+
+    const deltaX = endX - touchStartX;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        showPreviousMedia();
+      } else {
+        showNextMedia();
+      }
+    }
+    setTouchStartX(null);
+  }
+
+  useEffect(() => {
+    if (selectedMediaIndex === null) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === "ArrowRight") {
+        showNextMedia();
+      } else if (event.key === "ArrowLeft") {
+        showPreviousMedia();
+      } else if (event.key === "Escape") {
+        closeMediaViewer();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedMediaIndex, allMediaItems.length]);
+
   return (
     <div className="site-shell">
       <Header content={content} />
+      {selectedMedia && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={closeMediaViewer}>
+          <div
+            className={`media-modal${isFullscreen ? " fullscreen" : ""}`}
+            ref={mediaModalRef}
+            onClick={(event) => event.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <button className="modal-close" type="button" onClick={closeMediaViewer} aria-label="Close">
+              <X size={20} />
+            </button>
+            <button
+              className="modal-fullscreen"
+              type="button"
+              onClick={toggleFullscreen}
+              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            </button>
+            <button className="media-nav prev" type="button" onClick={showPreviousMedia} aria-label="Previous image">
+              <ChevronDown size={24} />
+            </button>
+            <button className="media-nav next" type="button" onClick={showNextMedia} aria-label="Next image">
+              <ChevronDown size={24} />
+            </button>
+            {selectedMedia.type?.startsWith("video") ? (
+              <video
+                src={selectedMedia.previewSrc || selectedMedia.src}
+                controls
+                autoPlay
+                playsInline
+              />
+            ) : (
+              <img
+                src={selectedMedia.previewSrc || selectedMedia.src}
+                alt={selectedMedia.title || "Gallery preview"}
+              />
+            )}
+            <div className="media-modal-caption">
+              {selectedMedia.title && <h2>{selectedMedia.title}</h2>}
+              {selectedMedia.caption && <p>{selectedMedia.caption}</p>}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main>
         <section id="home" className="hero" style={cssSpotlight} onMouseMove={handleHeroMove}>
@@ -622,8 +825,8 @@ function PublicSite() {
             {content.leaders.map((leader) => (
               <article className="leader-card" key={leader.id}>
                 <div className="leader-photo">
-                  {leader.image ? (
-                    <img src={leader.image} alt={`${leader.name}, ${leader.role}`} />
+                  {leader.imagePreview || leader.image ? (
+                    <img src={leader.imagePreview || leader.image} alt={`${leader.name}, ${leader.role}`} />
                   ) : (
                     <Cross size={46} />
                   )}
@@ -722,33 +925,21 @@ function PublicSite() {
             align="center"
           />
           {content.media.length ? (
-            <div className="media-category-list">
-              {mediaCategories.map((category) => {
-                const items = content.media.filter(
-                  (item) => getMediaCategory(item) === category.value
-                );
-                return (
-                  <div className="media-category-section" key={category.value}>
-                    <div className="media-category-heading">
-                      <h3>{category.label}</h3>
-                      <span>{items.length} item{items.length === 1 ? "" : "s"}</span>
-                    </div>
-                    {items.length ? (
-                      <div className="uploaded-media-grid">
-                        {items.map((item) => (
-                          <article className="uploaded-media-card" key={item.id}>
-                            <MediaPreview item={item} />
-                            <h3>{item.title}</h3>
-                            {item.caption && <p>{item.caption}</p>}
-                          </article>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="empty-category">No uploads in this section yet.</p>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="uploaded-media-grid">
+              {content.media.map((item, index) => (
+                <article className="uploaded-media-card" key={item.id}>
+                  <button
+                    className="uploaded-media-link"
+                    type="button"
+                    onClick={() => openMediaViewer(index)}
+                    aria-label={`Open ${item.title || "media"} in gallery`}
+                  >
+                    <MediaPreview item={item} />
+                  </button>
+                  <h3>{item.title}</h3>
+                  {item.caption && <p>{item.caption}</p>}
+                </article>
+              ))}
             </div>
           ) : (
             <div className="media-grid">
@@ -962,7 +1153,13 @@ function AdminPage() {
         Object.entries(draft.socials).map(([key, value]) => [key, safeExternalUrl(value)])
       )
     };
-    saveContent(cleaned);
+    const saved = saveContent(cleaned);
+    if (!saved) {
+      setUploadError(
+        "Unable to save changes. Browser storage may be full. Please remove large uploaded media or use a different browser."
+      );
+      return;
+    }
     setContent(cleaned);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
@@ -971,7 +1168,7 @@ function AdminPage() {
   function exportBackup() {
     const backup = {
       exportedAt: new Date().toISOString(),
-      content: draft,
+      content: stripPreviewData(draft),
       analytics
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
@@ -1009,9 +1206,10 @@ function AdminPage() {
   async function updateLeaderImage(index, file) {
     if (!file) return;
     try {
-      const { fileUrl } = await createStaticMediaPath(file, "leaders");
+      const { fileUrl, previewSrc } = await createStaticMediaPath(file, "leaders");
       const next = structuredClone(draft.leaders);
       next[index].image = fileUrl;
+      next[index].imagePreview = previewSrc;
       update(["leaders"], next);
       setUploadError("");
     } catch (error) {
@@ -1022,7 +1220,7 @@ function AdminPage() {
   async function addMedia(files) {
     try {
       const uploaded = await Promise.all(
-        Array.from(files).map((file) => createStaticMediaItem(file, "others"))
+        Array.from(files).map((file) => createStaticMediaItem(file))
       );
       update(["media"], [...draft.media, ...uploaded]);
       setUploadError("");
@@ -1133,7 +1331,11 @@ function AdminPage() {
             {draft.leaders.map((leader, index) => (
               <div className="leader-editor" key={leader.id}>
                 <div className="leader-photo editor-preview">
-                  {leader.image ? <img src={leader.image} alt={leader.name} /> : <Cross size={38} />}
+                  {leader.imagePreview || leader.image ? (
+                    <img src={leader.imagePreview || leader.image} alt={leader.name} />
+                  ) : (
+                    <Cross size={38} />
+                  )}
                 </div>
                 <TextField
                   label="Name"
@@ -1191,8 +1393,8 @@ function AdminPage() {
             <input type="file" accept="image/*,video/*" multiple onChange={(event) => addMedia(event.target.files)} />
           </label>
           <p className="admin-help">
-            Selected files are referenced as static paths under <code>/media/&lt;category&gt;/&lt;filename&gt;</code>.
-            Copy the files into the matching `public/media` folder locally and redeploy to Netlify.
+            Selected files are referenced as static paths under <code>/media/others/&lt;filename&gt;</code>.
+            Copy the files into the `public/media/others` folder locally and redeploy to Netlify.
           </p>
           {uploadError && <p className="form-error">{uploadError}</p>}
           <div className="admin-media-list">
@@ -1208,23 +1410,6 @@ function AdminPage() {
                     update(["media"], next);
                   }}
                 />
-                <label>
-                  Category
-                  <select
-                    value={getMediaCategory(item)}
-                    onChange={(event) => {
-                      const next = structuredClone(draft.media);
-                      next[index].category = event.target.value;
-                      update(["media"], next);
-                    }}
-                  >
-                    {mediaCategories.map((category) => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
                 <TextField
                   label="Caption"
                   value={item.caption}
