@@ -977,7 +977,7 @@ function PublicSite() {
           </div>
           <div className="donate-form">
             <div className="amounts" aria-label="Suggested donation amounts">
-              {["$25", "$50", "$100", "$250"].map((amount) => (
+              {["$500", "$1000", "Others",].map((amount) => (
                 <button type="button" key={amount} onClick={() => trackClick(`donation:${amount}`)}>
                   {amount}
                 </button>

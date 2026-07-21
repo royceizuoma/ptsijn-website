@@ -4,8 +4,8 @@ const overrideContent = {
     "suffix": "IJN Foundation",
     "tagline": "Faith and Charity in the name of Jesus",
     "phone": "+1 301 404 5012",
-    "email": "info@ptsijn.org",
-    "location": "Meeting location to be confirmed"
+    "email": "perfectingdeesaints@gmail.com",
+    "location": "Online"
   },
   "hero": {
     "eyebrow": "Faith and Charity in the name of Jesus",
@@ -23,8 +23,8 @@ const overrideContent = {
       "id": "founder",
       "name": "Sylvia",
       "role": "Founder",
-      "bio": "Whatever you do in words or deeds, do all in the name of Jesus. Colossians 3:17\nGod loves people\nMinistry is all about people: their well-being, spirit, soul, and body",
-      "image": "/media/leaders/sylvia-540x540.jpeg"
+      "bio": "Colossians 3:17 \"Do all in the name of the \"Lord\" Jesus.\nGod Loves people, ministry is all about people; their well-being, spirit, soul, and body",
+      "image": "/media/leaders/AIRetouch_20260710_172054917.jpg"
     },
     {
       "id": "cofounder",
@@ -58,31 +58,17 @@ const overrideContent = {
   },
   "announcements": [
     {
-      "id": "outreach",
-      "type": "Next Outreach",
-      "title": "Community Outreach",
-      "date": "Add date in admin",
-      "text": "Use the admin page to announce the next outreach date, location, and instructions."
-    },
-    {
       "id": "service",
       "type": "Online Service",
       "title": "Perfecting The Saints",
       "date": "Sundays / 10:00 AM (Eastern Time)",
       "text": "Online connection for prayer and teaching. Join us live on Youtube and Facebook"
-    },
-    {
-      "id": "event",
-      "type": "Event",
-      "title": "Ministry Gathering",
-      "date": "Add date in admin",
-      "text": "Post upcoming worship, outreach, teaching, or community care updates here."
     }
   ],
   "media": [
     {
       "id": "94f4c9e0-d97c-4316-8184-2edf8be7229d",
-      "title": "medical drive",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/medical-drive.jpg",
@@ -90,7 +76,7 @@ const overrideContent = {
     },
     {
       "id": "650a3c30-29e0-4a24-a679-3a03b0e22bba",
-      "title": "Outreach1",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach1.jpg",
@@ -98,7 +84,7 @@ const overrideContent = {
     },
     {
       "id": "63e1157c-f324-4400-bc87-fff7ba0aaeda",
-      "title": "Outreach2",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach2.jpg",
@@ -106,7 +92,7 @@ const overrideContent = {
     },
     {
       "id": "0d191ba9-fbaf-44a2-86bd-ca8ec026a2f9",
-      "title": "Outreach3",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach3.jpg",
@@ -114,7 +100,7 @@ const overrideContent = {
     },
     {
       "id": "d1bfd96f-339c-4892-8711-2516dad65261",
-      "title": "Outreach4",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach4.jpg",
@@ -122,7 +108,7 @@ const overrideContent = {
     },
     {
       "id": "8ef1b413-096a-4a2a-9187-94af52dd8b80",
-      "title": "Outreach5",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach5.jpg",
@@ -130,7 +116,7 @@ const overrideContent = {
     },
     {
       "id": "f621e578-bede-48a8-abcc-e51c1cd38a58",
-      "title": "Outreach6",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/Outreach6.jpg",
@@ -138,7 +124,7 @@ const overrideContent = {
     },
     {
       "id": "fda21f52-9255-4d37-b4ef-0b6dfbbf3a6b",
-      "title": "winter supplies",
+      "title": "",
       "caption": "",
       "type": "image/jpeg",
       "src": "/media/others/winter-supplies.jpg",
@@ -147,10 +133,10 @@ const overrideContent = {
   ],
   "donation": {
     "note": "Your giving supports feeding outreaches, medical support, prayer ministry, and compassionate care.",
-    "bankName": "Add bank name in admin",
-    "accountName": "Perfecting The Saints IJN Foundation",
-    "accountNumber": "Add account number in admin",
-    "routingNumber": "",
+    "bankName": "Bank of America",
+    "accountName": "Perfecting The Saints IJN Foundation Inc.",
+    "accountNumber": "446044643281",
+    "routingNumber": "026009593",
     "instructions": "Click Continue to Giving to view the account details for your donation."
   },
   "socials": {
